@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="QuickKit — free, simple online tools for images, PDFs and text.">
+<title>QuickKit — Free Online Tools</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--ink:#172033;--muted:#64748b;--brand:#4f46e5;--line:#e5eaf2}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+header{background:linear-gradient(120deg,#312e81,#4f46e5);color:white;padding:34px 18px 28px}
+.wrap{max-width:1080px;margin:auto;padding:0 18px}.brand{font-weight:800;font-size:25px;letter-spacing:-.5px}
+header p{color:#e0e7ff;margin:8px 0 0}.hero{padding:24px 0 10px}.hero h1{font-size:clamp(28px,5vw,42px);line-height:1.12;margin:0 0 10px}.hero p{max-width:650px}
+main{padding:28px 0 60px}.toolbar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:20px}
+input[type=search]{flex:1;min-width:220px;padding:13px 15px;border:1px solid var(--line);border-radius:12px;font:inherit;background:white}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}.tab,button{border:0;border-radius:10px;padding:11px 15px;font:600 14px system-ui;cursor:pointer}
+.tab{background:#e9eafc;color:#3730a3}.tab.active,button.primary{background:var(--brand);color:white}.tab:hover,button:hover{filter:brightness(.96)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:16px}
+.tool{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:19px;box-shadow:0 5px 18px #17203308}
+.tool h2{font-size:18px;margin:0 0 5px}.tool p{color:var(--muted);font-size:14px;min-height:42px;margin:0 0 15px}
+.tool input[type=file],.tool input[type=number],.tool select,.tool textarea{width:100%;margin:7px 0 12px;padding:10px;border:1px solid var(--line);border-radius:9px;font:inherit}
+.tool textarea{min-height:105px;resize:vertical}.tool button{margin:4px 4px 4px 0}.tool .out{font-size:13px;color:var(--muted);overflow-wrap:anywhere;margin-top:10px}
+.tool[hidden]{display:none}footer{border-top:1px solid var(--line);padding:25px 0;color:var(--muted);font-size:13px}
+a{color:var(--brand)}.note{background:#eef2ff;border:1px solid #c7d2fe;border-radius:12px;padding:13px 15px;color:#3730a3;font-size:14px;margin:0 0 20px}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>if(window.pdfjsLib)pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+</head>
+<body>
+<header><div class="wrap"><div class="brand">⚡ QuickKit</div><div class="hero"><h1>Free tools. Simple solutions.</h1><p>Quickly work with images, PDFs and text — right in your browser. No account needed.</p></div></div></header>
+<main class="wrap">
+<div class="note">Your files are processed in your browser wherever possible. Keep a copy of important original files before editing.</div>
+<div class="toolbar"><input id="search" type="search" placeholder="Search tools…"><div class="tabs"><button class="tab active" data-filter="all">All tools</button><button class="tab" data-filter="image">Images</button><button class="tab" data-filter="pdf">PDF</button><button class="tab" data-filter="text">Text</button></div></div>
+<section class="grid" id="tools">
+<article class="tool" data-cat="image"><h2>Image Compressor</h2><p>Reduce image file size and download a smaller copy.</p><input id="compressFile" type="file" accept="image/*"><label>Quality <input id="quality" type="number" min=".1" max="1" step=".1" value=".75"></label><button class="primary" onclick="compressImage()">Compress image</button><div class="out" id="compressOut"></div></article>
+<article class="tool" data-cat="image"><h2>Image Resizer</h2><p>Resize an image to your preferred dimensions.</p><input id="resizeFile" type="file" accept="image/*"><input id="resizeW" type="number" placeholder="Width (px)"><input id="resizeH" type="number" placeholder="Height (px)"><button class="primary" onclick="resizeImage()">Resize image</button><div class="out" id="resizeOut"></div></article>
+<article class="tool" data-cat="image"><h2>JPG to PNG</h2><p>Convert a JPG or JPEG image into PNG format.</p><input id="jpgPngFile" type="file" accept="image/jpeg"><button class="primary" onclick="convertImage('jpgPngFile','png')">Convert to PNG</button><div class="out" id="jpgPngOut"></div></article>
+<article class="tool" data-cat="image"><h2>PNG to JPG</h2><p>Convert a PNG image into a JPG file.</p><input id="pngJpgFile" type="file" accept="image/png"><button class="primary" onclick="convertImage('pngJpgFile','jpeg')">Convert to JPG</button><div class="out" id="pngJpgOut"></div></article>
+<article class="tool" data-cat="image"><h2>Image to PDF</h2><p>Turn one or more images into a single PDF.</p><input id="imgPdfFiles" type="file" accept="image/*" multiple><button class="primary" onclick="imagesToPdf()">Create PDF</button><div class="out" id="imgPdfOut"></div></article>
+<article class="tool" data-cat="pdf"><h2>Merge PDFs</h2><p>Combine multiple PDF files into one document.</p><input id="mergeFiles" type="file" accept="application/pdf" multiple><button class="primary" onclick="mergePdfs()">Merge PDFs</button><div class="out" id="mergeOut"></div></article>
+<article class="tool" data-cat="pdf"><h2>Extract PDF Page</h2><p>Save one selected page from a PDF as a new file.</p><input id="extractFile" type="file" accept="application/pdf"><input id="extractPage" type="number" min="1" placeholder="Page number (e.g. 1)"><button class="primary" onclick="extractPage()">Extract page</button><div class="out" id="extractOut"></div></article>
+<article class="tool" data-cat="pdf"><h2>Rotate PDF</h2><p>Rotate every page in a PDF by 90, 180 or 270 degrees.</p><input id="rotateFile" type="file" accept="application/pdf"><select id="rotateAngle"><option value="90">90 degrees</option><option value="180">180 degrees</option><option value="270">270 degrees</option></select><button class="primary" onclick="rotatePdf()">Rotate PDF</button><div class="out" id="rotateOut"></div></article>
+<article class="tool" data-cat="text"><h2>Word & Character Counter</h2><p>Count words, characters, sentences and paragraphs.</p><textarea id="countText" placeholder="Type or paste your text…" oninput="countText()"></textarea><div class="out" id="countOut">Words: 0 · Characters: 0 · Sentences: 0 · Paragraphs: 0</div></article>
+<article class="tool" data-cat="text"><h2>Text Case Converter</h2><p>Convert text to uppercase, lowercase or title case.</p><textarea id="caseText" placeholder="Enter text to convert…"></textarea><button onclick="changeCase('upper')">UPPERCASE</button><button onclick="changeCase('lower')">lowercase</button><button class="primary" onclick="changeCase('title')">Title Case</button><div class="out" id="caseOut"></div></article>
+</section>
+</main>
+<footer><div class="wrap">© <span id="year"></span> QuickKit. Free browser-based tools. <span>Always review files before sharing.</span></div></footer>
+<script>
+const $=id=>document.getElementById(id);
+$('year').textContent=new Date().getFullYear();
+function downloadBlob(blob,name){const a=document.createElement('a');const u=URL.createObjectURL(blob);a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1500)}
+function loadImage(file){return new Promise((res,rej)=>{const im=new Image(),u=URL.createObjectURL(file);im.onload=()=>{URL.revokeObjectURL(u);res(im)};im.onerror=rej;im.src=u})}
+function canvasBlob(canvas,type,q){return new Promise(r=>canvas.toBlob(r,type,q))}
+async function compressImage(){try{const f=$('compressFile').files[0];if(!f)throw Error('Choose an image first.');const im=await loadImage(f),c=document.createElement('canvas');c.width=im.width;c.height=im.height;c.getContext('2d').drawImage(im,0,0);const q=Math.max(.1,Math.min(1,Number($('quality').value)||.75));const b=await canvasBlob(c,'image/jpeg',q);downloadBlob(b,'quickkit-compressed.jpg');$('compressOut').textContent=`Original: ${(f.size/1024).toFixed(1)} KB · New: ${(b.size/1024).toFixed(1)} KB`}catch(e){$('compressOut').textContent=e.message}}
+async function resizeImage(){try{const f=$('resizeFile').files[0],w=+$('resizeW').value,h=+$('resizeH').value;if(!f||!w||!h)throw Error('Choose an image and enter width and height.');const im=await loadImage(f),c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(im,0,0,w,h);const b=await canvasBlob(c,'image/png');downloadBlob(b,'quickkit-resized.png');$('resizeOut').textContent='Your resized image has been downloaded.'}catch(e){$('resizeOut').textContent=e.message}}
+async function convertImage(input,type){try{const f=$(input).files[0];if(!f)throw Error('Choose an image first.');const im=await loadImage(f),c=document.createElement('canvas');c.width=im.width;c.height=im.height;c.getContext('2d').drawImage(im,0,0);const b=await canvasBlob(c,'image/'+type);downloadBlob(b,type==='png'?'converted.png':'converted.jpg');$(input==='jpgPngFile'?'jpgPngOut':'pngJpgOut').textContent='Conversion complete.'}catch(e){$(input==='jpgPngFile'?'jpgPngOut':'pngJpgOut').textContent=e.message}}
+async function imagesToPdf(){try{const fs=[...$('imgPdfFiles').files];if(!fs.length)throw Error('Choose one or more images.');const pdf=await PDFLib.PDFDocument.create();for(const f of fs){const bytes=await f.arrayBuffer();let img,embed;if(f.type==='image/png'){img=await pdf.embedPng(bytes)}else{const im=await loadImage(f),c=document.createElement('canvas');c.width=im.width;c.height=im.height;c.getContext('2d').drawImage(im,0,0);const b=await canvasBlob(c,'image/jpeg',.92);img=await pdf.embedJpg(await b.arrayBuffer())}const page=pdf.addPage([img.width,img.height]);page.drawImage(img,{x:0,y:0,width:img.width,height:img.height})}downloadBlob(new Blob([await pdf.save()],{type:'application/pdf'}),'images.pdf');$('imgPdfOut').textContent='PDF created.'}catch(e){$('imgPdfOut').textContent=e.message}}
+async function mergePdfs(){try{const fs=[...$('mergeFiles').files];if(fs.length<2)throw Error('Choose at least two PDF files.');const out=await PDFLib.PDFDocument.create();for(const f of fs){const src=await PDFLib.PDFDocument.load(await f.arrayBuffer());const pages=await out.copyPages(src,src.getPageIndices());pages.forEach(p=>out.addPage(p))}downloadBlob(new Blob([await out.save()],{type:'application/pdf'}),'merged.pdf');$('mergeOut').textContent='Merged PDF downloaded.'}catch(e){$('mergeOut').textContent='Could not merge files. Check that they are valid, unprotected PDFs.'}}
+async function extractPage(){try{const f=$('extractFile').files[0],n=+$('extractPage').value;if(!f||!n)throw Error('Choose a PDF and enter a page number.');const src=await PDFLib.PDFDocument.load(await f.arrayBuffer());if(n<1||n>src.getPageCount())throw Error('That page number is outside this PDF.');const out=await PDFLib.PDFDocument.create(),[p]=await out.copyPages(src,[n-1]);out.addPage(p);downloadBlob(new Blob([await out.save()],{type:'application/pdf'}),'extracted-page.pdf');$('extractOut').textContent='Page extracted.'}catch(e){$('extractOut').textContent=e.message}}
+async function rotatePdf(){try{const f=$('rotateFile').files[0];if(!f)throw Error('Choose a PDF first.');const pdf=await PDFLib.PDFDocument.load(await f.arrayBuffer()),deg=+$('rotateAngle').value;pdf.getPages().forEach(p=>p.setRotation(PDFLib.degrees((p.getRotation().angle+deg)%360)));downloadBlob(new Blob([await pdf.save()],{type:'application/pdf'}),'rotated.pdf');$('rotateOut').textContent='Rotated PDF downloaded.'}catch(e){$('rotateOut').textContent='Could not rotate this PDF. Check that it is valid and not protected.'}}
+function countText(){const s=$('countText').value,words=s.trim()?s.trim().split(/\s+/).length:0,sent=(s.match(/[.!?]+(?=\s|$)/g)||[]).length,paras=s.trim()?s.trim().split(/\n\s*\n/).length:0;$('countOut').textContent=`Words: ${words} · Characters: ${s.length} · Sentences: ${sent} · Paragraphs: ${paras}`}
+function changeCase(type){let s=$('caseText').value;if(type==='upper')s=s.toUpperCase();if(type==='lower')s=s.toLowerCase();if(type==='title')s=s.toLowerCase().replace(/\b\w/g,c=>c.toUpperCase());$('caseText').value=s;$('caseOut').textContent='Text converted. You can copy it from the box above.'}
+let filter='all';function applyFilter(){const q=$('search').value.toLowerCase();document.querySelectorAll('.tool').forEach(el=>{el.hidden=!(filter==='all'||el.dataset.cat===filter)||!el.innerText.toLowerCase().includes(q)})}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');filter=b.dataset.filter;applyFilter()}));$('search').addEventListener('input',applyFilter);
+</script>
+</body></html>
